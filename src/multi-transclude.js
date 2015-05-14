@@ -64,9 +64,10 @@
       $element.append(transcludeContainer);
     };
 
-    // 'sibling' - The transcluded contents scope is a sibling one to the element where transclusion happens. That's the current ng-transclude behaviour.
-    // 'parent'  - The transcluded contents scope is that of the element where transclusion happens.
-    // 'child'   - The transcluded contents scope is child scope to the scope of the element where transclusion happens.
+    // 'sibling'      - The transcluded contents scope is a sibling one to the element where transclusion happens. That's the current ng-transclude behaviour.
+    // 'parent'       - The transcluded contents scope is that of the element where transclusion happens.
+    // 'grandparent'  - parent of 'parent' scope (It used for isolated scope directive)
+    // 'child'        - The transcluded contents scope is child scope to the scope of the element where transclusion happens.
     var scopeType = $attrs['ngMultiTranscludeController'] || 'sibling';
     switch(scopeType){
       case 'sibling':
@@ -74,6 +75,9 @@
         break;
       case 'parent':
         $transclude($scope, transcludeProc);
+        break;
+      case 'grandparent':
+        $transclude($scope.$parent, transcludeProc);
         break;
       case 'child':
         $transclude($scope.$new(), transcludeProc);
