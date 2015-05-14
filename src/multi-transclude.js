@@ -1,7 +1,7 @@
 (function(){
   var module = angular.module('multi-transclude', []);
 
-  var Ctrl = ['$scope', '$element', '$transclude', function($scope, $element, $transclude){
+  var Ctrl = ['$scope', '$attrs', '$element', '$transclude', function($scope, $attrs, $element, $transclude){
     // Ensure we're transcluding or nothing will work.
     if(!$transclude){
       throw new Error(
@@ -57,12 +57,28 @@
 
     // Transclude content and keep track of it; be sure to keep it in the DOM
     // by attaching it to `$element`.
-    $transclude(function(clone){
+    transcludeProc = function(clone){
       toTransclude = clone;
 
       transcludeContainer.append(clone);
       $element.append(transcludeContainer);
-    });
+    };
+
+    // 'sibling' - The transcluded contents scope is a sibling one to the element where transclusion happens. That's the current ng-transclude behaviour.
+    // 'parent'  - The transcluded contents scope is that of the element where transclusion happens.
+    // 'child'   - The transcluded contents scope is child scope to the scope of the element where transclusion happens.
+    var scopeType = $attrs['ngMultiTranscludeController'] || 'sibling';
+    switch(scopeType){
+      case 'sibling':
+        $transclude(transcludeProc);
+        break;
+      case 'parent':
+        $transclude($scope, transcludeProc);
+        break;
+      case 'child':
+        $transclude($scope.$new(), transcludeProc);
+        break;
+    }
   }];
 
   module.directive('ngMultiTemplate', function(){
